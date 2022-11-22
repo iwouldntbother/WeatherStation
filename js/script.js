@@ -133,7 +133,7 @@ const locSearch = () => {
 
 // Detect the enter button clicked when typing in the input field
 document.getElementById('locInput').addEventListener('keyup', (e) => {
-  e.key === 'Enter' ? locSearch() : null;
+  if (e.key === 'Enter') locSearch();
 });
 
 // Detect the serach button being pressed
@@ -152,9 +152,9 @@ const getDateTime = () => {
   let dateData = new Date();
   date =
     dateData.getDate() +
-    '/' +
+    '.' +
     dateData.getMonth() +
-    '/' +
+    '.' +
     String(dateData.getFullYear()).slice(-2);
 
   time = dateData.getHours() + ':' + ('00' + dateData.getMinutes()).slice(-2);
@@ -162,13 +162,13 @@ const getDateTime = () => {
   document.getElementById('dispDate').innerHTML = date;
   document.getElementById('dispTime').innerHTML = time;
   document.getElementById('dispDay').innerHTML = day;
-  console.log(date, time, day);
+  // console.log(date, time, day);
 };
 
 setInterval(getDateTime, 60000);
 getDateTime();
 
-getLonLat('oxford');
+getLonLat();
 
 // Variables
 
@@ -267,13 +267,10 @@ rainParticleSystem.maxLifeTime = 2.5;
 // rainParticleSystem.start();
 
 scene.registerBeforeRender(() => {
-  windSpeedMesh
-    ? (windSpeedMesh.rotation.y += windSpeed / engine.getFps())
-    : null;
+  if (windSpeedMesh) windSpeedMesh.rotation.y += windSpeed / engine.getFps();
 
-  windDirectionMesh
-    ? (windDirectionMesh.rotation.y = windDirection * (Math.PI / 180))
-    : null;
+  if (windDirectionMesh)
+    windDirectionMesh.rotation.y = windDirection * (Math.PI / 180);
 });
 
 engine.runRenderLoop(function () {
