@@ -26,6 +26,8 @@ body {
   pointer-events: none;
 }
 
+/* Control Panel */
+
 #controlPanel {
   position: absolute;
   bottom: 0;
@@ -36,6 +38,7 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  pointer-events: all;
 }
 
 /* Display */
@@ -134,4 +137,46 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+#locLat::after,
+#locLon::after {
+  content: '...';
+}
+
+#dispLoc span {
+  margin: 0;
+}
+
+#dispLoc p {
+  font-size: 3vh;
+  margin: 0;
+}
+
+#locHolder p {
+  margin: 0;
+}
+
+#locHolder > h1 {
+  margin: 0;
+  height: 2vh;
+  font-size: 2vh;
+  text-transform: uppercase;
+  margin-bottom: 0.5vh;
+}
+
+#locHolder input {
+  max-width: 8vw;
+  margin-left: 1vw;
+  margin-top: 0.5vh;
+  height: 3vh;
+  border: solid black 0.05vw;
+}
+
+#locHolder button {
+  width: 8vw;
+  margin-left: 1vw;
+  margin-bottom: 0.5vh;
+  padding: 0.5vh 0;
+  background-color: white;
 }

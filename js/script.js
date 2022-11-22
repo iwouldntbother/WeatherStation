@@ -2,42 +2,59 @@
 
 let weather;
 
-function setup() {
-  let currentTime = new Date();
-  url =
-    'https://api.open-meteo.com/v1/forecast?latitude=51.51&longitude=-0.13&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m&windspeed_unit=ms&timezone=Europe%2FLondon';
-  loadJSON(url, (json) => {
-    weather = json;
-    console.log(weather.hourly);
-    currentWeatherData.temp =
-      weather.hourly.temperature_2m[currentTime.getHours()];
-    currentWeatherData.relHum =
-      weather.hourly.relativehumidity_2m[currentTime.getHours()];
-    currentWeatherData.rain = weather.hourly.rain[currentTime.getHours()];
-    currentWeatherData.windSpeed =
-      weather.hourly.windspeed_10m[currentTime.getHours()];
-    currentWeatherData.windDir =
-      weather.hourly.winddirection_10m[currentTime.getHours()];
-    currentWeatherData.windGusts =
-      weather.hourly.windgusts_10m[currentTime.getHours()];
+// function setup() {
+//   let currentTime = new Date();
+//   url =
+//     'https://api.open-meteo.com/v1/forecast?latitude=51.51&longitude=-0.13&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m&windspeed_unit=ms&timezone=Europe%2FLondon';
+//   loadJSON(url, (json) => {
+//     weather = json;
+//     console.log(weather.hourly);
+//     currentWeatherData.temp =
+//       weather.hourly.temperature_2m[currentTime.getHours()];
+//     currentWeatherData.relHum =
+//       weather.hourly.relativehumidity_2m[currentTime.getHours()];
+//     currentWeatherData.rain = weather.hourly.rain[currentTime.getHours()];
+//     currentWeatherData.windSpeed =
+//       weather.hourly.windspeed_10m[currentTime.getHours()];
+//     currentWeatherData.windDir =
+//       weather.hourly.winddirection_10m[currentTime.getHours()];
+//     currentWeatherData.windGusts =
+//       weather.hourly.windgusts_10m[currentTime.getHours()];
+//     currentWeatherData.windAverage = (
+//       weather.hourly.windgusts_10m.reduce((a, b) => a + b, 0) /
+//       weather.hourly.windgusts_10m.length
+//     ).toFixed(2);
 
-    console.log(currentWeatherData);
+//     console.log(currentWeatherData);
 
-    windSpeed = currentWeatherData.windSpeed;
+//     windSpeed = currentWeatherData.windSpeed;
 
-    updatePanel();
-  });
-}
+//     updatePanel();
+//   });
+// }
 
-const getWeather = (query) => {
+let currentWeatherData = {
+  temp: 0,
+  relHum: 0,
+  rain: 0,
+  windDir: 0,
+  windGusts: 0,
+  windSpeed: 0,
+  windAverage: 0,
+  location: {},
+};
+
+const getLonLat = (query) => {
+  let location;
   if (query) {
     const req = new XMLHttpRequest();
     req.addEventListener('load', (e) => {
-      let location = {
+      location = {
         lat: JSON.parse(e.target.responseText)[0].lat,
         lon: JSON.parse(e.target.responseText)[0].lon,
+        name: JSON.parse(e.target.responseText)[0].display_name,
       };
-      console.log('lat: ' + location.lat, 'lon: ' + location.lon);
+      getWeather(location);
     });
     req.open(
       'GET',
@@ -49,11 +66,12 @@ const getWeather = (query) => {
   } else {
     const req = new XMLHttpRequest();
     req.addEventListener('load', (e) => {
-      let location = {
+      location = {
         lat: JSON.parse(e.target.responseText)[0].lat,
         lon: JSON.parse(e.target.responseText)[0].lon,
+        name: JSON.parse(e.target.responseText)[0].display_name,
       };
-      console.log('lat: ' + location.lat, 'lon: ' + location.lon);
+      getWeather(location);
     });
     req.open(
       'GET',
@@ -63,29 +81,74 @@ const getWeather = (query) => {
   }
 };
 
-getWeather('oxford');
+const getWeather = (location) => {
+  let url =
+    'https://api.open-meteo.com/v1/forecast?latitude=' +
+    location.lat +
+    '&longitude=' +
+    location.lon +
+    '&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m&windspeed_unit=ms&timezone=auto';
+  let currentTime = new Date();
+  const req = new XMLHttpRequest();
+  req.addEventListener('load', (e) => {
+    weather = JSON.parse(e.target.responseText);
+    // console.log(weather.hourly);
+    currentWeatherData.temp =
+      weather.hourly.temperature_2m[currentTime.getHours()];
+    currentWeatherData.relHum =
+      weather.hourly.relativehumidity_2m[currentTime.getHours()];
+    currentWeatherData.rain = weather.hourly.rain[currentTime.getHours()];
+    currentWeatherData.windSpeed =
+      weather.hourly.windspeed_10m[currentTime.getHours()];
+    currentWeatherData.windDir =
+      weather.hourly.winddirection_10m[currentTime.getHours()];
+    currentWeatherData.windGusts =
+      weather.hourly.windgusts_10m[currentTime.getHours()].toFixed(2);
+    currentWeatherData.windAverage = (
+      weather.hourly.windgusts_10m.reduce((a, b) => a + b, 0) /
+      weather.hourly.windgusts_10m.length
+    ).toFixed(2);
+    currentWeatherData.location = location;
 
-let currentWeatherData = {
-  temp: 0,
-  relHum: 0,
-  rain: 0,
-  windDir: 0,
-  windGusts: 0,
-  windSpeed: 0,
+    console.log(currentWeatherData);
+
+    windSpeed = currentWeatherData.windSpeed;
+
+    updatePanel();
+  });
+  req.open('GET', url);
+  req.send();
 };
+
+getLonLat('oxford');
 
 const updatePanel = () => {
   let tempOutdoorDeg = document.getElementById('tempOD');
   let tempOutdoorRh = document.getElementById('tempOR');
-  let tempIndoorDeg = document.getElementById('tempID');
-  let tempIndoorRh = document.getElementById('tempIR');
+  let locLat = document.getElementById('locLat');
+  let locLon = document.getElementById('locLon');
+  let windDirDial = document.getElementById('Dial');
+  let windGust = document.getElementById('windGust');
+  let windAverage = document.getElementById('windAverage');
+  let locDispName = document.getElementById('locDispName');
+
   tempOutdoorDeg.innerHTML = currentWeatherData.temp;
   tempOutdoorRh.innerHTML = currentWeatherData.relHum;
-  tempIndoorDeg.innerHTML =
-    currentWeatherData.temp + Math.floor(random(0, 1) * 10);
-  tempIndoorRh.innerHTML =
-    currentWeatherData.relHum + Math.floor(random(0, 1) * 10);
+  windDirDial.setAttribute(
+    'transform',
+    'rotate(' + currentWeatherData.windDir + ')'
+  );
+  windGust.innerHTML = currentWeatherData.windGusts;
+  windAverage.innerHTML = currentWeatherData.windAverage;
+  locDispName.innerHTML = currentWeatherData.location.name;
+  locLat.innerHTML = Number(currentWeatherData.location.lat).toFixed(2);
+  locLon.innerHTML = Number(currentWeatherData.location.lon).toFixed(2);
 };
+
+document.getElementById('locSearchBTN', (e) => {
+  // e.preventDefault();
+  console.log(e);
+});
 
 // Variables
 
