@@ -2,37 +2,7 @@
 
 let weather;
 
-// function setup() {
-//   let currentTime = new Date();
-//   url =
-//     'https://api.open-meteo.com/v1/forecast?latitude=51.51&longitude=-0.13&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m&windspeed_unit=ms&timezone=Europe%2FLondon';
-//   loadJSON(url, (json) => {
-//     weather = json;
-//     console.log(weather.hourly);
-//     currentWeatherData.temp =
-//       weather.hourly.temperature_2m[currentTime.getHours()];
-//     currentWeatherData.relHum =
-//       weather.hourly.relativehumidity_2m[currentTime.getHours()];
-//     currentWeatherData.rain = weather.hourly.rain[currentTime.getHours()];
-//     currentWeatherData.windSpeed =
-//       weather.hourly.windspeed_10m[currentTime.getHours()];
-//     currentWeatherData.windDir =
-//       weather.hourly.winddirection_10m[currentTime.getHours()];
-//     currentWeatherData.windGusts =
-//       weather.hourly.windgusts_10m[currentTime.getHours()];
-//     currentWeatherData.windAverage = (
-//       weather.hourly.windgusts_10m.reduce((a, b) => a + b, 0) /
-//       weather.hourly.windgusts_10m.length
-//     ).toFixed(2);
-
-//     console.log(currentWeatherData);
-
-//     windSpeed = currentWeatherData.windSpeed;
-
-//     updatePanel();
-//   });
-// }
-
+// Create global weather data object structure
 let currentWeatherData = {
   temp: 0,
   relHum: 0,
@@ -41,9 +11,11 @@ let currentWeatherData = {
   windGusts: 0,
   windSpeed: 0,
   windAverage: 0,
+  pressure: 0,
   location: {},
 };
 
+// Use a get request to OSM to grab the lat and lon values of either a specific location or default to London
 const getLonLat = (query) => {
   let location;
   if (query) {
@@ -81,13 +53,14 @@ const getLonLat = (query) => {
   }
 };
 
+// Get the weather data from Open Meteo, parse and distrobute into the previously declared object
 const getWeather = (location) => {
   let url =
     'https://api.open-meteo.com/v1/forecast?latitude=' +
     location.lat +
     '&longitude=' +
     location.lon +
-    '&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m&windspeed_unit=ms&timezone=auto';
+    '&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m,surface_pressure&windspeed_unit=ms&timezone=auto';
   let currentTime = new Date();
   const req = new XMLHttpRequest();
   req.addEventListener('load', (e) => {
@@ -108,6 +81,8 @@ const getWeather = (location) => {
       weather.hourly.windgusts_10m.reduce((a, b) => a + b, 0) /
       weather.hourly.windgusts_10m.length
     ).toFixed(2);
+    currentWeatherData.pressure =
+      weather.hourly.surface_pressure[currentTime.getHours()];
     currentWeatherData.location = location;
 
     console.log(currentWeatherData);
@@ -120,8 +95,7 @@ const getWeather = (location) => {
   req.send();
 };
 
-getLonLat('oxford');
-
+// Update the DOM with the new weather data
 const updatePanel = () => {
   let tempOutdoorDeg = document.getElementById('tempOD');
   let tempOutdoorRh = document.getElementById('tempOR');
@@ -131,6 +105,8 @@ const updatePanel = () => {
   let windGust = document.getElementById('windGust');
   let windAverage = document.getElementById('windAverage');
   let locDispName = document.getElementById('locDispName');
+  let dispPressure = document.getElementById('dispPressure');
+  let dispRain = document.getElementById('dispRain');
 
   tempOutdoorDeg.innerHTML = currentWeatherData.temp;
   tempOutdoorRh.innerHTML = currentWeatherData.relHum;
@@ -138,17 +114,61 @@ const updatePanel = () => {
     'transform',
     'rotate(' + currentWeatherData.windDir + ')'
   );
+  windDirection = currentWeatherData.windDir;
   windGust.innerHTML = currentWeatherData.windGusts;
   windAverage.innerHTML = currentWeatherData.windAverage;
   locDispName.innerHTML = currentWeatherData.location.name;
   locLat.innerHTML = Number(currentWeatherData.location.lat).toFixed(2);
   locLon.innerHTML = Number(currentWeatherData.location.lon).toFixed(2);
+  dispPressure.innerHTML = currentWeatherData.pressure.toFixed(2);
+  dispRain.innerHTML = currentWeatherData.rain;
 };
 
-document.getElementById('locSearchBTN', (e) => {
-  // e.preventDefault();
-  console.log(e);
+// function to start the weather data update process using the loaction query from the DOM input
+const locSearch = () => {
+  let value = document.getElementById('locInput').value;
+  getLonLat(value || 'london');
+  // document.getElementById('locInput').value = '';
+};
+
+// Detect the enter button clicked when typing in the input field
+document.getElementById('locInput').addEventListener('keyup', (e) => {
+  e.key === 'Enter' ? locSearch() : null;
 });
+
+// Detect the serach button being pressed
+document.getElementById('locSearchBTN').addEventListener('click', (e) => {
+  // e.preventDefault();
+  // console.log(e);
+  if (document.getElementById('locInput').value) locSearch();
+});
+
+//  Get date and time
+const weekday = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const getDateTime = () => {
+  let date = '';
+  let time = '';
+  let day = '';
+  let dateData = new Date();
+  date =
+    dateData.getDate() +
+    '/' +
+    dateData.getMonth() +
+    '/' +
+    String(dateData.getFullYear()).slice(-2);
+
+  time = dateData.getHours() + ':' + ('00' + dateData.getMinutes()).slice(-2);
+  day = weekday[dateData.getDay()];
+  document.getElementById('dispDate').innerHTML = date;
+  document.getElementById('dispTime').innerHTML = time;
+  document.getElementById('dispDay').innerHTML = day;
+  console.log(date, time, day);
+};
+
+setInterval(getDateTime, 60000);
+getDateTime();
+
+getLonLat('oxford');
 
 // Variables
 
@@ -178,6 +198,9 @@ function createScene() {
     scene
   );
   camera.setTarget(new BABYLON.Vector3(0, 2, 0));
+  // camera.useAutoRotationBehavior = true;
+  // camera.autoRotationBehavior.idleRotationSpeed = 0.7;
+  camera.minZ = 0.1;
   camera.lowerRadiusLimit = camera.upperRadiusLimit = camera.radius;
   camera.attachControl(canvas, true);
 

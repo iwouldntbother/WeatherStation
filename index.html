@@ -16,10 +16,11 @@
 
     <div id="controlPanel">
       <div class="row">
-        <p>Date: <span id="dispDate">21/11/22</span></p>
+        <p><span id="dispDate">21/11/22</span></p>
         <p><span id="dispTime">17:23</span> <span id="dispDay">MON</span></p>
       </div>
       <div id="windHolder" class="col">
+        <h1>WIND</h1>
         <div id="dispWindDir">
           <svg
             version="1.1"
@@ -151,7 +152,12 @@
           <p id="locDispName">
             London, Greater London, England, United Kingdom
           </p>
-          <input type="text" placeholder="Enter location..." />
+          <input
+            id="locInput"
+            type="text"
+            placeholder="Enter location..."
+            onsubmit="locSearch()"
+          />
           <button id="locSearchBTN">Search</button>
         </div>
         <div id="dispLoc">
@@ -168,8 +174,14 @@
           <p id="tempOD" class="tempDeg">28.0</p>
           <p id="tempOR" class="tempRh">50</p>
         </div>
-        <div id="dispRainPress">Pressure</div>
-        <div id="dispRainQuan">Quantity</div>
+        <div id="dispRainPress">
+          Pressure
+          <p id="dispPressure"></p>
+        </div>
+        <div id="dispRainQuan">
+          Rain
+          <p id="dispRain"></p>
+        </div>
       </div>
     </div>
 
