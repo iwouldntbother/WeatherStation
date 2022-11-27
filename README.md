@@ -23,7 +23,7 @@
 I am using the `weekday` array to store the 7 different strings for the days of the week.
 
 ```javascript
-const weekday = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const weekday = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 ```
 
 ### 2. A ‘While’ or ‘For’ Loop.
@@ -33,10 +33,10 @@ This for loop simply iterates through all the meshes being imported, using `Stri
 ```javascript
 for (let i = 0; i < meshes.length; i++) {
   console.log(meshes[i].name);
-  if (meshes[i].name.includes("Speed")) {
+  if (meshes[i].name.includes('Speed')) {
     windSpeedMesh = meshes[i];
     meshes[i].rotation = new BABYLON.Vector3.Zero();
-  } else if (meshes[i].name.includes("Direction")) {
+  } else if (meshes[i].name.includes('Direction')) {
     windDirectionMesh = meshes[i];
     meshes[i].rotation = new BABYLON.Vector3.Zero();
   }
@@ -60,7 +60,7 @@ const getLonLat = (query) => {
   let location;
   if (query) {
     const req = new XMLHttpRequest();
-    req.addEventListener("load", (e) => {
+    req.addEventListener('load', (e) => {
       location = {
         lat: JSON.parse(e.target.responseText)[0].lat,
         lon: JSON.parse(e.target.responseText)[0].lon,
@@ -69,15 +69,15 @@ const getLonLat = (query) => {
       getWeather(location);
     });
     req.open(
-      "GET",
-      "https://nominatim.openstreetmap.org/search?q=" +
+      'GET',
+      'https://nominatim.openstreetmap.org/search?q=' +
         String(query) +
-        "&format=json"
+        '&format=json'
     );
     req.send();
   } else {
     const req = new XMLHttpRequest();
-    req.addEventListener("load", (e) => {
+    req.addEventListener('load', (e) => {
       location = {
         lat: JSON.parse(e.target.responseText)[0].lat,
         lon: JSON.parse(e.target.responseText)[0].lon,
@@ -86,8 +86,8 @@ const getLonLat = (query) => {
       getWeather(location);
     });
     req.open(
-      "GET",
-      "https://nominatim.openstreetmap.org/search?city=london&format=json"
+      'GET',
+      'https://nominatim.openstreetmap.org/search?city=london&format=json'
     );
     req.send();
   }
@@ -99,8 +99,8 @@ const getLonLat = (query) => {
 This code snippet is used to log a random number every 10 minutes
 
 ```javascript
-const thisIsHereBecauseThisIsARequirementForThisAssessment = setInterval(() => {
-  console.log(random(0, 100));
+setInterval(() => {
+  console.log('Random Number: ' + random(0, 100));
 }, 600000);
 ```
 
@@ -111,14 +111,14 @@ This function is used to send a GET request to the weather API and parse the res
 ```javascript
 const getWeather = (location) => {
   let url =
-    "https://api.open-meteo.com/v1/forecast?latitude=" +
+    'https://api.open-meteo.com/v1/forecast?latitude=' +
     location.lat +
-    "&longitude=" +
+    '&longitude=' +
     location.lon +
-    "&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m,surface_pressure&windspeed_unit=ms&timezone=auto";
+    '&hourly=temperature_2m,relativehumidity_2m,rain,windspeed_10m,winddirection_10m,windgusts_10m,surface_pressure&windspeed_unit=ms&timezone=auto';
   let currentTime = new Date();
   const req = new XMLHttpRequest();
-  req.addEventListener("load", (e) => {
+  req.addEventListener('load', (e) => {
     weather = JSON.parse(e.target.responseText);
     // console.log(weather.hourly);
     currentWeatherData.temp =
@@ -146,7 +146,7 @@ const getWeather = (location) => {
 
     updatePanel();
   });
-  req.open("GET", url);
+  req.open('GET', url);
   req.send();
 };
 ```
